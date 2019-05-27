@@ -2,9 +2,8 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
         <Identity Id="NewProjectTreeDialog.c058ff47-32f2-43ae-86ad-42952b0f8813" Version="1.0" Language="en-US" Publisher="Gekka" />
-        <DisplayName>NewProjectTreeDialog</DisplayName>
+        <DisplayName>New Project Tree Dialog</DisplayName>
         <Description xml:space="preserve">Overwrite VS2019 project creation dialog to tree format like as VS2017 style</Description>
-        <MoreInfo>https://github.com/gekka/NewProjectTreeDialog</MoreInfo>
         <License>LICENSE</License>
         <Icon>Resources\128.png</Icon>
         <PreviewImage>Resources\1.png</PreviewImage>
@@ -15,7 +14,7 @@
     </Installation>
     <Dependencies>
         <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
-        <Dependency Id="Microsoft.VisualStudio.MPF.15.0" DisplayName="Visual Studio MPF 15.0" d:Source="Installed" Version="[15.0]" />
+        <Dependency d:Source="Installed" Id="Microsoft.VisualStudio.MPF.16.0" DisplayName="Visual Studio MPF 16.0" Version="[16.0,17.0)" />
     </Dependencies>
     <Prerequisites>
         <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[16.0,17.0)" DisplayName="Visual Studio core editor" />
