@@ -2,17 +2,27 @@
 {
     using System;
 
+    /// <summary>
+    /// 2ページ目
+    /// </summary>
     class CustomProjectConfigurationModel : NPDViewChildModelBase
     {
-        protected override string ViewModelTypeName { get; } = "ProjectConfigurationViewModel";
+        public override string ViewModelTypeName { get; } = "ProjectConfigurationViewModel";
 
         public override bool Initialize(IOption option, System.Windows.Controls.ContentControl npdview)
         {
-            this.NPDView = npdview;
-
-            return true;
+            //こっちは元のnpdview.DataContextがテンプレート選択毎に作り直されるっぽい
+            return base.Initialize(option, npdview);
         }
 
+        protected override void OnOriginalSelectedViewModelChanged()
+        {
+            base.OnOriginalSelectedViewModelChanged();
+            this.IsEnabled = IsSelected;
+#pragma warning disable VSTHRD001
+            GLOBAL.Dispatcher.BeginInvoke((Action)this.UpdateTexts, System.Windows.Threading.DispatcherPriority.Input);
+#pragma warning restore
+        }
         /// <summary>ViewにあるTextを取り込む</summary>
         /// <param name="npdview"></param>
         protected override bool GetTexts(System.Windows.Controls.ContentControl npdview)
@@ -24,12 +34,6 @@
             this.FrameworkLabelText = _FrameworkLabelText ?? GetText(npdview, "fxVersionLabel");
 
             return true;
-        }
-
-        /// <summary>ViewにあるTextを更新</summary>
-        public void UpdateTexts()
-        {
-            GetTexts(this.NPDView);
         }
 
         public string ProjectNameLabelText
@@ -74,7 +78,7 @@
             get { return _IsEnabled; }
             set { if (_IsEnabled != value) { _IsEnabled = value; OnPropertyChanged(nameof(IsEnabled)); } }
         }
-        private bool _IsEnabled;
+        private bool _IsEnabled = false;
 
 
     }

@@ -1,80 +1,130 @@
 ﻿namespace Gekka.VisualStudio.Extention.NewProjectTreeDialog.Model
 {
     using System;
+    using System.ComponentModel;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
 
     abstract class NPDViewChildModelBase : ModelBase, IDisposable
     {
-        public bool IsNpdviewTargetContent()
+        public abstract string ViewModelTypeName { get; }
+
+        public virtual bool Initialize(IOption option, System.Windows.Controls.ContentControl npdview)
+        {
+            this.NPDView = npdview;
+            IsSelected = IsNpdviewTargetContent(npdview);
+            if (IsSelected)
+            {
+                this.OriginalViewModel = npdview.Content;
+            }
+
+            _iNotify = NPDView.DataContext as System.ComponentModel.INotifyPropertyChanged;
+            if (_iNotify != null)
+            {
+                _iNotify.PropertyChanged += _npdviewDataContext_PropertyChanged;
+            }
+            return true;
+        }
+
+        /// <summary></summary>
+        public bool IsSelected
+        {
+            get { return _IsSelected; }
+            set { if (_IsSelected != value) { _IsSelected = value; OnPropertyChanged(nameof(IsSelected)); } }
+        }
+        private bool _IsSelected;
+
+        public object GetNPD_SelectedViewModel()
+        {
+            var npdviewDataContext = this.NPDView?.DataContext;
+            if (npdviewDataContext == null)
+            {
+                return false;
+            }
+
+            var selectedViewModel = npdviewDataContext
+                .GetType()
+                .GetProperty("SelectedViewModel")?
+                .GetValue(npdviewDataContext);
+            return selectedViewModel;
+        }
+
+        private bool IsNpdviewTargetContent(System.Windows.Controls.ContentControl npdview)
+        {
+            return npdview?.Content?.GetType().Name == ViewModelTypeName;
+        }
+
+        protected bool IsNpdviewTargetContent()
         {
             return this.IsNpdviewTargetContent(this.NPDView);
         }
 
-        protected abstract string ViewModelTypeName { get; }
-
-        public bool IsNpdviewSelected
+        private void _npdviewDataContext_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            get
+            if (e.PropertyName == "SelectedViewModel")
             {
-                var npdviewDataContext = this.NPDView?.DataContext;
-                if (npdviewDataContext == null)
-                {
-                    return false;
-                }
-
-                var selectedViewModel = npdviewDataContext.GetType().GetProperty("SelectedViewModel")?.GetValue(npdviewDataContext);
-                return selectedViewModel?.GetType().Name == ViewModelTypeName;
+                OnOriginalSelectedViewModelChanged();
             }
         }
-        public  bool IsNpdviewTargetContent(System.Windows.Controls.ContentControl npdview)
+
+        protected virtual void OnOriginalSelectedViewModelChanged()
         {
-            if (npdview == null)
+            var svm = GetNPD_SelectedViewModel();
+
+            IsSelected = svm?.GetType().Name == ViewModelTypeName;
+            if (_IsSelected)
             {
-                return false;
+                this.OriginalViewModel = svm;
             }
-            return npdview.Content?.GetType().Name == ViewModelTypeName;
         }
-        public abstract bool Initialize(IOption option, System.Windows.Controls.ContentControl npdview);
+
+        protected System.Windows.Controls.ContentControl NPDView { get; private set; }
+        private System.ComponentModel.INotifyPropertyChanged _iNotify;
 
         /// <summary></summary>
-        public System.Windows.Controls.ContentControl NPDView
+        public object OriginalViewModel
         {
             get
             {
-                return _NPDView;
+                return _OriginalViewModel;
             }
-            protected set
+            set
             {
-                if (_NPDView != value)
+                if (_OriginalViewModel != value)
                 {
-                    _NPDView = value;
-                    OnPropertyChanged(nameof(NPDView));
-                    if (value != null)
-                    {
-                        GetTexts(value);
-                    }
+                    _OriginalViewModel = value;
+                    OnPropertyChanged(nameof(OriginalViewModel));
                 }
             }
         }
-        private System.Windows.Controls.ContentControl _NPDView;
+        private object _OriginalViewModel;
+
+        /// <summary>ViewにあるTextを更新</summary>
+        public void UpdateTexts()
+        {
+            GetTexts(this.NPDView);
+        }
 
         protected abstract bool GetTexts(System.Windows.Controls.ContentControl npdview);
 
         protected static string GetText(System.Windows.Controls.ContentControl npdview, string name)
         {
             var d = ControlFinder.FindChildren<FrameworkElement>(npdview).FirstOrDefault(_ => _.Name == name);
-
+            string retval = null;
             if (d is System.Windows.Controls.ContentControl)
             {
-                return ((System.Windows.Controls.ContentControl)d).Content?.ToString();
+                retval = ((System.Windows.Controls.ContentControl)d).Content?.ToString();
             }
             if (d is System.Windows.Controls.Primitives.TextBoxBase)
             {
-                return ((TextBlock)d).Text;
+                retval = ((TextBlock)d).Text;
             }
-            return null;
+            if (retval != null)
+            {
+                retval = System.Text.RegularExpressions.Regex.Replace(retval, @"\(_[A-Z]\)", "");
+            }
+            return retval;
         }
 
         public virtual void WriteToOption(IOption option)
@@ -84,6 +134,12 @@
         private bool disposed = false;
         protected virtual void Dispose(bool isnotFromFinalizer)
         {
+            if (_iNotify != null)
+            {
+                _iNotify.PropertyChanged -= _npdviewDataContext_PropertyChanged;
+            }
+     
+
             if (!this.disposed)
             {
                 if (isnotFromFinalizer)
@@ -105,6 +161,5 @@
         {
             this.Dispose(false);
         }
-
     }
 }

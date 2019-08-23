@@ -5,7 +5,17 @@ VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewProjectTreeDialog", "NewProjectTreeDialog\NewProjectTreeDialog.csproj", "{49D8169A-9D85-4704-A633-E7C112E68E46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSIXProject1", "VSIXProject1\VSIXProject1.csproj", "{5180AC79-416A-43BB-AE13-164A00BB99D7}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PageModels", "PageModels", "{9968316E-BAAC-4E2D-8D13-12DBF594452F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1", "1", "{25988C7A-FC44-47D5-9ACF-EA9637F2F154}"
+	ProjectSection(SolutionItems) = preProject
+		NewProjectTreeDialog\Model\CustomProjectTemplatesModel.cs = NewProjectTreeDialog\Model\CustomProjectTemplatesModel.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2", "2", "{9EAABF2D-A3C5-446E-90DB-92BB887E3B49}"
+	ProjectSection(SolutionItems) = preProject
+		NewProjectTreeDialog\Model\CustomProjectConfigurationModel.cs = NewProjectTreeDialog\Model\CustomProjectConfigurationModel.cs
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,13 +27,13 @@ Global
 		{49D8169A-9D85-4704-A633-E7C112E68E46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49D8169A-9D85-4704-A633-E7C112E68E46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49D8169A-9D85-4704-A633-E7C112E68E46}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5180AC79-416A-43BB-AE13-164A00BB99D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5180AC79-416A-43BB-AE13-164A00BB99D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5180AC79-416A-43BB-AE13-164A00BB99D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5180AC79-416A-43BB-AE13-164A00BB99D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{25988C7A-FC44-47D5-9ACF-EA9637F2F154} = {9968316E-BAAC-4E2D-8D13-12DBF594452F}
+		{9EAABF2D-A3C5-446E-90DB-92BB887E3B49} = {9968316E-BAAC-4E2D-8D13-12DBF594452F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F8827F00-5E60-4F9B-9B3E-D76E88D13349}

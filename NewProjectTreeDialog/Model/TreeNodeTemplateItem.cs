@@ -4,7 +4,7 @@
     using System.Linq;
     class TreeNodeTemplateItem : TreeNodeItem
     {
-        public TreeNodeTemplateItem(object template)
+        public TreeNodeTemplateItem(object template,object templateSource)
         {
             this.IsLastNode = true;
 
@@ -15,6 +15,8 @@
             this.Name = this.TemplateWrapper.Name;
             this.Description = this.TemplateWrapper.Description;
             this.Header = this.Name;
+
+            this.TemplateSource = templateSource ?? template;
         }
 
         public string Name { get; private set; }
@@ -25,6 +27,14 @@
             get;
             internal set;
         }
+
+        /// <summary>
+        /// テンプレートを取り出した元のソース
+        /// </summary>
+        /// <remarks>
+        /// 16.3からテンプレートがViewModelに包まれるようになった
+        /// </remarks>
+        public object TemplateSource { get; private set; }
 
         public TemplateWrapper TemplateWrapper { get; private set; }
 

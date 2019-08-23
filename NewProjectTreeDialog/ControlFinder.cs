@@ -23,6 +23,19 @@
                 }
             }
         }
+
+        public static T FindParent<T>(System.Windows.DependencyObject d) where T : System.Windows.DependencyObject
+        {
+            while (d != null)
+            {
+                d = VisualTreeHelper.GetParent(d);
+                if(d is T t)
+                {
+                    return t;
+                }
+            }
+            return null;
+        }
     }
 }
 

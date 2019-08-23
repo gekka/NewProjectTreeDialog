@@ -7,6 +7,7 @@
              xmlns:local="clr-namespace:Gekka.VisualStudio.Extention.NewProjectTreeDialog"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="400">
+   
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="b2v" />
         <local:InvertConverter x:Key="inv" />
@@ -84,18 +85,17 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
+        <ItemsPanelTemplate x:Key="wrappanel">
+            <WrapPanel Orientation="Vertical"
+                                           Height="{Binding Path=ActualHeight,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ScrollContentPresenter}}}" 
+                                     PreviewMouseWheel="lst_PreviewMouseWheel"     />
+        </ItemsPanelTemplate>
+        
         <Style TargetType="{x:Type ListBox}" x:Key="templatesListBoxStyle">
 
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsNormalList}" Value="false">
-                    <Setter Property="ItemsPanel">
-                        <Setter.Value>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Vertical"
-                                                           Height="{Binding Path=ActualHeight,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ScrollContentPresenter}}}" />
-                            </ItemsPanelTemplate>
-                        </Setter.Value>
-                    </Setter>
+                    <Setter Property="ItemsPanel" Value="{StaticResource wrappanel}" />
                     <Setter Property="ItemContainerStyle">
                         <Setter.Value>
                             <Style TargetType="{x:Type ListBoxItem}">
@@ -130,6 +130,7 @@
                 </DataTrigger>
 
                 <DataTrigger Binding="{Binding Path=IsNormalList}" Value="true">
+                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     <Setter Property="ItemsPanel">
                         <Setter.Value>
@@ -197,6 +198,7 @@
             <Grid FlowDirection="LeftToRight" VerticalAlignment="Top" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal" >
                     <TextBlock Text="Filter:" VerticalAlignment="Center" Margin="0,0,20,0"/>
+
                     <Border BorderBrush="LightGray" BorderThickness="1">
                         <DockPanel>
                             <Rectangle DockPanel.Dock="Right" Width="16" Height="16" Fill="{StaticResource icoSearch}" />
@@ -205,12 +207,13 @@
                                              Text="{Binding Path=SearchText,UpdateSourceTrigger=PropertyChanged}"/>
                         </DockPanel>
                     </Border>
-                    
+
                     <RadioButton x:Name="raSmall" ToolTip="SmallSize" VerticalAlignment="Center" Margin="5,0"
                                      Style="{StaticResource iconRadioButtonStyle}"
                                              IsChecked="{Binding Path=IsNormalList,Converter={StaticResource inv}}">
                         <Image Source="{StaticResource icoSmall}" StretchDirection="DownOnly" Stretch="None"  />
                     </RadioButton>
+
                     <RadioButton x:Name="raNormal" ToolTip="NormalSize" VerticalAlignment="Center" Margin="5,0"
                                      Style="{StaticResource iconRadioButtonStyle}"
                                              IsChecked="{Binding Path=IsNormalList}">
@@ -223,12 +226,18 @@
         </DataTemplate>
 
     </UserControl.Resources>
-
+   
     <Grid Grid.Row="0" Background="White">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
+
             <ColumnDefinition Width="Auto"/>
+
             <ColumnDefinition Width="3*"/>
+
+            <ColumnDefinition Width="Auto"/>
+
+            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
 
         <TreeView x:Name="trv" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch"
@@ -258,98 +267,63 @@
 
 
         <DockPanel Grid.Column="2" >
-            <Expander >
-                <Expander.Style>
-                    <Style TargetType="{x:Type Expander}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Path=IsShowTagsLeft}" Value="false">
-                                <Setter Property="ExpandDirection" Value="Down" />
-                                <Setter Property="DockPanel.Dock" Value="Top" />
-                                <Setter Property="FlowDirection" Value="RightToLeft"/>
-                                <Setter Property="HeaderTemplate" Value="{StaticResource listTopTemplate}" />
-                                <Setter Property="Header" Value="{Binding}" />
-                                <Setter Property="MaxHeight" Value="300" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Path=IsShowTagsLeft}" Value="true">
-                                <Setter Property="ExpandDirection" Value="Left" />
-                                <Setter Property="DockPanel.Dock" Value="Right" />
-                                <Setter Property="MaxWidth" Value="150" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Expander.Style>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" 
-                                  HorizontalScrollBarVisibility="Hidden" 
-                                  FlowDirection="LeftToRight">
-
-                    <ItemsControl Width="{Binding Path=ActualWidth,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ScrollContentPresenter}}"
-                                  ItemsSource="{Binding Path=TagsView}">
-                        <ItemsControl.GroupStyle>
-                            <GroupStyle  >
-                                <GroupStyle.Panel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel />
-                                    </ItemsPanelTemplate>
-                                </GroupStyle.Panel>
-                                <GroupStyle.HeaderTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button Content="^" 
-                                                   Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl},Path=DataContext.TagSortCommand}" CommandParameter="{Binding Path=Name}"    />
-                                            <TextBlock Text="{Binding Path=Name}" FontWeight="ExtraBold" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </GroupStyle.HeaderTemplate>
-                            </GroupStyle>
-                        </ItemsControl.GroupStyle>
-
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-
-                                <WrapPanel Orientation="Horizontal" IsItemsHost="true" 
-                                               Width="{Binding Path=ActualWidth,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ScrollContentPresenter}}}" />
-
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ToggleButton Content="{Binding Path=Value}" Margin="2,1"
-                                      IsChecked="{Binding Path=Filter}"
-                                                  Template="{StaticResource tg}">
-
-                                </ToggleButton>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-
-                    </ItemsControl>
-                </ScrollViewer>
-            </Expander>
-
-
             <ContentPresenter Content="{Binding}"
                               ContentTemplate="{StaticResource listTopTemplate}"
-                              DockPanel.Dock="Top">
-                <ContentPresenter.Style>
-                    <Style TargetType="{x:Type ContentPresenter}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsShowTagsLeft}" Value="false">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContentPresenter.Style>
-            </ContentPresenter>
-
-
+                              DockPanel.Dock="Top"/>
             <Grid>
                 <ListBox x:Name="lst" ItemsSource="{Binding ElementName=trv,Path=SelectedItem.FilteredItems}"
                          Style="{StaticResource templatesListBoxStyle}" 
-                         SelectedValuePath="Template"
-                         SelectedValue="{Binding Path=SelectedExtension,Mode=OneWayToSource}"  >
+                         SelectedValuePath="TemplateSource"
+                         SelectedValue="{Binding Path=SelectedExtension,Mode=OneWayToSource}" >
                 </ListBox>
             </Grid>
         </DockPanel>
+
+        <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" 
+                      ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"/>
+        
+        <ScrollViewer Grid.Column="4" VerticalScrollBarVisibility="Auto" 
+                                  HorizontalScrollBarVisibility="Hidden" 
+                                  FlowDirection="LeftToRight">
+
+            <ItemsControl Width="{Binding Path=ActualWidth,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ScrollContentPresenter}}"
+                                  ItemsSource="{Binding Path=TagsView}">
+                <ItemsControl.GroupStyle>
+                    <GroupStyle  >
+                        <GroupStyle.Panel>
+                            <ItemsPanelTemplate>
+                                <StackPanel />
+                            </ItemsPanelTemplate>
+                        </GroupStyle.Panel>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="^" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl},Path=DataContext.TagSortCommand}" CommandParameter="{Binding Path=Name}"    />
+                                    <TextBlock Text="{Binding Path=Name}" FontWeight="ExtraBold" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ItemsControl.GroupStyle>
+
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" IsItemsHost="true" 
+                                   Width="{Binding Path=ActualWidth,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ScrollContentPresenter}}}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ToggleButton Content="{Binding Path=Value}" Margin="2,1"
+                                      IsChecked="{Binding Path=Filter}"
+                                                  Template="{StaticResource tg}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+
+            </ItemsControl>
+        </ScrollViewer>
+
     </Grid>
 
 

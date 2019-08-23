@@ -9,6 +9,9 @@
     using System.Windows.Data;
     using System.Windows.Documents;
 
+    /// <summary>
+    /// 1ページ目
+    /// </summary>
     partial class CustomProjectTemplatesModel : NPDViewChildModelBase, IDisposable
     {
         public CustomProjectTemplatesModel()
@@ -19,10 +22,12 @@
             }
         }
 
-        protected override string ViewModelTypeName { get; } = "ProjectCreationViewModel";
+        public override string ViewModelTypeName { get; } = "ProjectCreationViewModel";
 
         public override bool Initialize(IOption option, System.Windows.Controls.ContentControl npdview)
         {
+            base.Initialize(option, npdview);
+
             this.IsNormalList = option.TemplateListMode == TemplateListMode.Normal;
             this.IsShowTagsLeft = option.IsShowTagsLeft;
 
@@ -50,7 +55,7 @@
                     this.TagTypeOrder.Add(grpkey);
                 }
             }
-            if (!IsNpdviewTargetContent(npdview))
+            if (!IsNpdviewTargetContent())
             {
                 return false;
             }
@@ -82,16 +87,40 @@
             this.BuildTemplateTree();
             this.ExpandFirstRecentTree();
 
-            this.NPDView = npdview;
-            this._OriginalViewModel = npdview.Content;
-            
             return true;
         }
 
         protected override bool GetTexts(System.Windows.Controls.ContentControl npdview)
         {
-            this.header_recent = ControlFinder.FindChildren<TextBlock>(npdview).FirstOrDefault(_ => _.Name == "RecentProjectTemplatesTitle")?.Text;
-            return this.header_recent != null;
+            //16.2 TextBlockがLabelに変更された
+            const string RECENT_PROJECT_TEMPLATES_TITLE = "RecentProjectTemplatesTitle";
+            TextBlock textBlock = ControlFinder.FindChildren<TextBlock>(npdview).FirstOrDefault(_ => _.Name == RECENT_PROJECT_TEMPLATES_TITLE);
+            if (textBlock != null)
+            {
+                this.header_recent = textBlock.Text;
+            }
+            else
+            {
+                Label label = ControlFinder.FindChildren<Label>(npdview).FirstOrDefault(_ => _.Name == RECENT_PROJECT_TEMPLATES_TITLE);
+                if (label != null)
+                {
+                    var labelContent = label.Content;
+                    if (label.Content is AccessText accessText)
+                    {
+                        this.header_recent = accessText.Text;
+                    }
+                    else
+                    {
+                        this.header_recent = label.Content.ToString();
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private bool has_HeaderOther = false;
@@ -138,13 +167,33 @@
 
             Type t = projectCreationViewModel.GetType();
 
+
             var extensions = projectCreationViewModel.GetType()
                             .GetProperty("Extensions")?
                             .GetValue(projectCreationViewModel) as System.Collections.IEnumerable;
             if (extensions == null)
             {
+                //16.3以降はExtensionsView
+                extensions = (projectCreationViewModel.GetType()
+                    .GetProperty("ExtensionsView")?
+                    .GetValue(projectCreationViewModel) as CollectionView)?.SourceCollection;
+
+                if (extensions != null)
+                {
+                    var t0 = extensions.OfType<object>().FirstOrDefault()?.GetType();
+                    //if (t0?.FullName == "Microsoft.VisualStudio.NewProjectDialog.VsTemplateViewModel")
+                    //{
+                    //    var pi=t0.GetProperty("Template");
+                    //    extensions = extensions.OfType<object>().Select(_ => pi.GetValue(_)).OfType<object>();
+                    //}
+                }
+            }
+
+            if (extensions == null)
+            {
                 return false;
             }
+
 
             //"その他"に対応する文字列を調べる
             IEnumerable<TreeNodeTemplateItem> converter(bool forTest)
@@ -305,61 +354,75 @@
         /// <returns></returns>
         private TreeNodeTemplateItem CreateTreeNodeItemFromExtension(object o_ext, bool forTest = false)
         {
-            object o_name = o_ext.GetType().GetProperty("Name")?.GetValue(o_ext);
-            if (o_name == null || o_name?.GetType().Name == "InstallMorePlaceHolderTemplate")
+            try
             {
-                return null;
-            }
-
-            TreeNodeTemplateItem node = new TreeNodeTemplateItem(o_ext);
-
-            foreach (Tag tagTemp in node.TemplateWrapper.GetTemplateTags())
-            {
-                if (!forTest)
-                {
-                    var tag = this.Tags.FirstOrDefault(_ => _.Id == tagTemp.Id && _.Type == tagTemp.Type && _.Value == tagTemp.Value);
-                    if (tag == null)
-                    {
-                        tag = tagTemp;
-                        this.Tags.Add(tag);
-                    }
-                    node.AddTag(tag);
+                object source = o_ext;
+                Type t = o_ext.GetType();
+                if (t.FullName == "Microsoft.VisualStudio.NewProjectDialog.VsTemplateViewModel")
+                {//16.3
+                    o_ext = t.GetProperty("Template").GetValue(source);
                 }
-                else
-                {
-                    node.AddTag(tagTemp);
-                }
-            }
 
-            if (!forTest)
-            {
-                string[] grpkeys = this.TagTypeOrder.ToArray();
-                if (!node.Tags.Any(_ => _.Type == TagTypeKey.ProjectType))
+                object o_name = o_ext.GetType().GetProperty("Name")?.GetValue(o_ext);
+                if (o_name == null || o_name?.GetType().Name == "InstallMorePlaceHolderTemplate")
                 {
-                    var name = node.TemplateWrapper.NonLocalizedCategoryFullName;
-                    Tag tag = this.Tags.FirstOrDefault(_ => _.Type == TagTypeKey.ProjectType && _.Id == name);
-                    if (tag == null)
-                    {
-                        tag = new Tag();
-                        tag.Id = name;
-                        tag.Type = TagTypeKey.ProjectType;
-                        tag.Value = name;
-                        this.Tags.Add(tag);
-                    }
-                    node.AddTag(tag);
+                    return null;
                 }
-                foreach (string grpKey in grpkeys)
+
+                TreeNodeTemplateItem node = new TreeNodeTemplateItem(o_ext,source);
+
+                foreach (Tag tagTemp in node.TemplateWrapper.GetTemplateTags())
                 {
-                    if (!node.Tags.Any(_ => _.Type == grpKey))
+                    if (!forTest)
                     {
-                        var tag = GetOtherTag(grpKey, forTest);
+                        var tag = this.Tags.FirstOrDefault(_ => _.Id == tagTemp.Id && _.Type == tagTemp.Type && _.Value == tagTemp.Value);
+                        if (tag == null)
+                        {
+                            tag = tagTemp;
+                            this.Tags.Add(tag);
+                        }
                         node.AddTag(tag);
                     }
+                    else
+                    {
+                        node.AddTag(tagTemp);
+                    }
                 }
 
+                if (!forTest)
+                {
+                    string[] grpkeys = this.TagTypeOrder.ToArray();
+                    if (!node.Tags.Any(_ => _.Type == TagTypeKey.ProjectType))
+                    {
+                        var name = node.TemplateWrapper.NonLocalizedCategoryFullName;
+                        Tag tag = this.Tags.FirstOrDefault(_ => _.Type == TagTypeKey.ProjectType && _.Id == name);
+                        if (tag == null)
+                        {
+                            tag = new Tag();
+                            tag.Id = name;
+                            tag.Type = TagTypeKey.ProjectType;
+                            tag.Value = name;
+                            this.Tags.Add(tag);
+                        }
+                        node.AddTag(tag);
+                    }
+                    foreach (string grpKey in grpkeys)
+                    {
+                        if (!node.Tags.Any(_ => _.Type == grpKey))
+                        {
+                            var tag = GetOtherTag(grpKey, forTest);
+                            node.AddTag(tag);
+                        }
+                    }
 
+
+                }
+                return node;
             }
-            return node;
+            catch
+            {
+                throw;
+            }
         }
 
         #endregion
@@ -508,9 +571,24 @@
         /// <summary>選択されたテンプレートをもとのViewModlに設定する</summary>
         public void CopySelectedExtensionToToOriginal()
         {
-            var piSelectedExtension = _OriginalViewModel.GetType().GetProperty("SelectedExtension");
-            piSelectedExtension.SetValue(_OriginalViewModel, this._SelectedExtension);
-            //_OriginalViewModel.SelectedExtension = this._SelectedExtension;
+            SelectedExtensionOriginal = this._SelectedExtension;
+        }
+
+        /// <summary>
+        /// VisualStudio側で選択されているテンプレート
+        /// </summary>
+        public object SelectedExtensionOriginal
+        {
+            get
+            {
+                var piSelectedExtension = this.OriginalViewModel.GetType().GetProperty("SelectedExtension");
+                return piSelectedExtension.GetValue(this.OriginalViewModel);
+            }
+            private set
+            {
+                var piSelectedExtension = this.OriginalViewModel.GetType().GetProperty("SelectedExtension");
+                piSelectedExtension.SetValue(this.OriginalViewModel, value);
+            }
         }
 
         /// <summary>選択されているテンプレート</summary>
@@ -521,8 +599,9 @@
         }
         private object _SelectedExtension;
 
-        /// <summary>元のViewmodel</summary>
-        private object _OriginalViewModel;
+        ///// <summary>元のViewmodel</summary>
+        ///// <remarks>これは変化しないっぽい</remarks>
+        //private object _OriginalViewModel;
 
         #endregion
 

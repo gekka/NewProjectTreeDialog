@@ -89,7 +89,7 @@
                 var listMode = odp.TemplateListMode;
 
 
-                var model=new Model.CustomProjectCreationModel();
+                var model=new Model.DialogModel();
                 //model.CustomProjectTemplatesModel.TagTypeOrder
                 model.Initialize((IOption)odp);
             }

@@ -14,9 +14,9 @@
         </Grid.RowDefinitions>
 
         <view:CustomProjectTemplatesView Grid.Row="0"
-        DataContext="{Binding CustomProjectTemplatesModel}"/>
+        DataContext="{Binding page1}"/>
         
         <view:CustomProjectConfigurationView Grid.Row="1"
-        DataContext="{Binding CustomProjectConfigurationModel}"/>
+        DataContext="{Binding page2}"/>
     </Grid>
 </UserControl>

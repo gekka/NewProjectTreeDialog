@@ -17,7 +17,17 @@
           IsEnabled="{Binding Path=IsEnabled}">
 
         <StackPanel Grid.IsSharedSizeScope="true" HorizontalAlignment="Stretch"
-                    DataContext="{Binding Path=NPDView.DataContext.SelectedViewModel}" >
+                    DataContext="{Binding Path=OriginalViewModel}" >
+            <StackPanel.Style>
+                <Style TargetType="{x:Type StackPanel}">
+                    <Style.Triggers>
+                        <Trigger Property="DataContext" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+            
             <TextBlock Text="{Binding Path=SelectedExtension.Name}" />
 
             <Grid IsEnabled="{Binding Path=ProjectNameIsEnabled}" 
