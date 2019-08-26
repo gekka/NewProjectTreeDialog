@@ -19,7 +19,7 @@
     [ProvideAutoLoad(Microsoft.VisualStudio.Shell.Interop.UIContextGuids.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
 #pragma warning restore
     [Guid(NewProjectTreeDialogPackage.PackageGuidString)]
-    [ProvideOptionPage(typeof(OptionDialogPage),"Gekka", "NewProjectTreeDialog", 0,0 ,true)]
+    [ProvideOptionPage(typeof(OptionDialogPage), "Gekka", "NewProjectTreeDialog", 0, 0, true)]
     public sealed class NewProjectTreeDialogPackage : AsyncPackage
     {
         static NewProjectTreeDialogPackage()
@@ -38,7 +38,7 @@
         /// <summary>  NewProjectTreeDialogPackage GUID string. </summary>
         public const string PackageGuidString = "b938ab7d-0586-45b1-8a2b-aa7032a0b818";
 
-#region Package Members
+        #region Package Members
 
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
@@ -49,15 +49,19 @@
 
             GLOBAL.Initialize(this);
             GLOBAL.CommandEvents.BeforeExecute += CommandEvents_BeforeExecute;
-       
+
             var cmd = GLOBAL.DTE.Commands.Item("File.NewProject");
             cmdFileNewProject = new CMD(cmd);
+
+            cmd = GLOBAL.DTE.Commands.Item("File.AddNewProject");
+            cmdFileAddNewProject = new CMD(cmd);
 
             //BackgroundLoadingのせいでBeforeExecuteをひっかける前にコマンドが実行される可能性がある
             HookDialog();
         }
 
         CMD cmdFileNewProject;
+        CMD cmdFileAddNewProject;
         class CMD
         {
             public CMD(EnvDTE.Command cmd)
@@ -72,11 +76,22 @@
 
         private void CommandEvents_BeforeExecute(string Guid, int ID, object CustomIn, object CustomOut, ref bool CancelDefault)
         {
-            if (cmdFileNewProject.GUID == Guid && cmdFileNewProject.ID == ID)
+            if (
+                (cmdFileNewProject.GUID == Guid && cmdFileNewProject.ID == ID) ||
+                (cmdFileAddNewProject.GUID == Guid && cmdFileAddNewProject.ID == ID)
+               )
             {
 #pragma warning disable VSTHRD001
                 ThreadHelper.Generic.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, HookDialog);
 #pragma warning restore
+            }
+            try
+            {
+                var cmd = GLOBAL.DTE.Commands.Item(Guid, ID);
+                System.Diagnostics.Debug.WriteLine(cmd.Name);
+            }
+            catch
+            {
             }
         }
 
@@ -89,13 +104,13 @@
                 var listMode = odp.TemplateListMode;
 
 
-                var model=new Model.DialogModel();
+                var model = new Model.DialogModel();
                 //model.CustomProjectTemplatesModel.TagTypeOrder
                 model.Initialize((IOption)odp);
             }
             catch (Exception ex)
             {
-               Common.ShowError(ex.Message);
+                Common.ShowError(ex.Message);
             }
         }
 
@@ -104,6 +119,6 @@
             GLOBAL.CommandEvents.BeforeExecute -= CommandEvents_BeforeExecute;
             base.Dispose(disposing);
         }
-#endregion
+        #endregion
     }
 }

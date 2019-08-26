@@ -33,11 +33,11 @@
         [System.ComponentModel.DefaultValue(TemplateListMode.Normal)]
         public TemplateListMode TemplateListMode { get; set; } = TemplateListMode.Normal;
 
-        [System.ComponentModel.Category("Tag")]
-        [System.ComponentModel.DisplayName("TagsShowLeft")]
-        [System.ComponentModel.Description("")]
-        [System.ComponentModel.DefaultValue(true)]
-        public bool IsShowTagsLeft { get; set; } = true;
+        //[System.ComponentModel.Category("Tag")]
+        //[System.ComponentModel.DisplayName("TagsShowLeft")]
+        //[System.ComponentModel.Description("")]
+        //[System.ComponentModel.DefaultValue(true)]
+        //public bool IsShowTagsLeft { get; set; } = true;
     }
 
     interface IOption
@@ -45,7 +45,7 @@
         string TagTypeOrder { get; set; }
         string DisabledTags { get; set; }
         TemplateListMode TemplateListMode { get; set; }
-        bool IsShowTagsLeft { get; set; }
+        //bool IsShowTagsLeft { get; set; }
         void SaveSettingsToStorage();
     }
 

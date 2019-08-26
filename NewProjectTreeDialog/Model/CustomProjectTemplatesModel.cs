@@ -29,7 +29,7 @@
             base.Initialize(option, npdview);
 
             this.IsNormalList = option.TemplateListMode == TemplateListMode.Normal;
-            this.IsShowTagsLeft = option.IsShowTagsLeft;
+            //this.IsShowTagsLeft = option.IsShowTagsLeft;
 
             if (string.IsNullOrEmpty(option.TagTypeOrder))
             {
@@ -137,12 +137,12 @@
         }
         private bool _IsNormalList;
 
-        public bool IsShowTagsLeft
-        {
-            get { return _IsShowTagsLeft; }
-            set { if (_IsShowTagsLeft != value) { _IsShowTagsLeft = value; OnPropertyChanged(nameof(IsShowTagsLeft)); } }
-        }
-        private bool _IsShowTagsLeft;
+        //public bool IsShowTagsLeft
+        //{
+        //    get { return _IsShowTagsLeft; }
+        //    set { if (_IsShowTagsLeft != value) { _IsShowTagsLeft = value; OnPropertyChanged(nameof(IsShowTagsLeft)); } }
+        //}
+        //private bool _IsShowTagsLeft;
 
         #region Node
 
