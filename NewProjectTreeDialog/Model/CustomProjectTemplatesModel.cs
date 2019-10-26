@@ -167,14 +167,33 @@
 
             Type t = projectCreationViewModel.GetType();
 
+            //フィルタを解除
+            string clearFiltersCommandName;
+            if (GLOBAL.DTEVersion < new Version(16, 3))
+            {
+                clearFiltersCommandName = "ClearFiltersCommand";
+            }
+            else
+            {
+                clearFiltersCommandName = "ClearCommand";
+            }
+            var clearFiltersCommand = t.GetProperty(clearFiltersCommandName)?.GetValue(projectCreationViewModel) as System.Windows.Input.ICommand;
+            if (clearFiltersCommand != null)
+            {
+                if (clearFiltersCommand.CanExecute(null))
+                {
+                    clearFiltersCommand.Execute(null);
+                }
+            }
 
-            var extensions = projectCreationViewModel.GetType()
+            //テンプレートの一覧を取得
+            var extensions = t
                             .GetProperty("Extensions")?
                             .GetValue(projectCreationViewModel) as System.Collections.IEnumerable;
             if (extensions == null)
             {
                 //16.3以降はExtensionsView
-                extensions = (projectCreationViewModel.GetType()
+                extensions = (t
                     .GetProperty("ExtensionsView")?
                     .GetValue(projectCreationViewModel) as CollectionView)?.SourceCollection;
 
@@ -245,8 +264,21 @@
             var mruvm = projectCreationViewModel.GetType().GetProperty("MruNewProjectsListViewModel")?.GetValue(projectCreationViewModel);
             if (mruvm != null)
             {
-                var recents = mruvm?.GetType().GetProperty("RecentTemplates")?.GetValue(mruvm) as System.Collections.IEnumerable;
+                object recentTemplates = mruvm?.GetType().GetProperty("RecentTemplates")?.GetValue(mruvm);
+                if (recentTemplates == null)
+                {//16.3?
+                    recentTemplates = mruvm?.GetType().GetProperty("RecentTemplatesCollection")?.GetValue(mruvm);
+                }
 
+                var recents= recentTemplates as System.Collections.IEnumerable;
+                if (recentTemplates is System.ComponentModel.ICollectionView icv)
+                {//16.3?
+                    recents= icv.SourceCollection as System.Collections.IEnumerable;
+                }
+                if (recentTemplates == null)
+                {//16.3?
+                    recentTemplates = mruvm?.GetType().GetProperty("RecentTemplatesCollectino")?.GetValue(mruvm);
+                }
                 UpdateRecentNode(recents);
 
                 this.recentCollection = recents as System.Collections.Specialized.INotifyCollectionChanged;
@@ -369,7 +401,7 @@
                     return null;
                 }
 
-                TreeNodeTemplateItem node = new TreeNodeTemplateItem(o_ext,source);
+                TreeNodeTemplateItem node = new TreeNodeTemplateItem(o_ext, source);
 
                 foreach (Tag tagTemp in node.TemplateWrapper.GetTemplateTags())
                 {
@@ -635,7 +667,10 @@
         }
         private string _SearchText = string.Empty;
 
+        public void SetFocusSearchTextBox()
+        {
 
+        }
 
         #endregion
 

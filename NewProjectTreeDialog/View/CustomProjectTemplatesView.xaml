@@ -204,7 +204,8 @@
                             <Rectangle DockPanel.Dock="Right" Width="16" Height="16" Fill="{StaticResource icoSearch}" />
 
                             <TextBox MinWidth="100" BorderThickness="0"
-                                             Text="{Binding Path=SearchText,UpdateSourceTrigger=PropertyChanged}"/>
+                                     Text="{Binding Path=SearchText,UpdateSourceTrigger=PropertyChanged}"
+                                     Loaded="SearchTextBox_Loaded"/>
                         </DockPanel>
                     </Border>
 
@@ -226,7 +227,7 @@
         </DataTemplate>
 
     </UserControl.Resources>
-   
+    
     <Grid Grid.Row="0" Background="White">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -244,6 +245,7 @@
                   ItemsSource="{Binding Path=TreeNodes}" SelectedItemChanged="Trv_SelectedItemChanged" >
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
+                    <EventSetter Event="Loaded" Handler="TreeViewItem_Loaded" />
                     <Setter Property="IsExpanded" Value="{Binding Path=IsExpanded}" />
                     <Setter Property="Visibility" Value="{Binding Path=IsVisible,Converter={StaticResource b2v}}" />
                     <Style.Triggers>
@@ -300,6 +302,24 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="^" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl},Path=DataContext.TagSortCommand}" CommandParameter="{Binding Path=Name}"    />
                                     <TextBlock Text="{Binding Path=Name}" FontWeight="ExtraBold" />
+                                    <Button Click="GroupAllCheck_Click" Tag="true">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <Grid Background="Transparent">
+                                                    <CheckBox IsChecked="true" IsHitTestVisible="False" />
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <Button Click="GroupAllCheck_Click" Tag="false">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <Grid Background="Transparent">
+                                                    <CheckBox IsChecked="false" IsHitTestVisible="False" />
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </GroupStyle.HeaderTemplate>
@@ -317,7 +337,7 @@
                     <DataTemplate>
                         <ToggleButton Content="{Binding Path=Value}" Margin="2,1"
                                       IsChecked="{Binding Path=Filter}"
-                                                  Template="{StaticResource tg}"/>
+                                      Template="{StaticResource tg}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
 

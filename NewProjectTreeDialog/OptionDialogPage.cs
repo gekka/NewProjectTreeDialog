@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.Shell;
 
-    class OptionDialogPage : Microsoft.VisualStudio.Shell.DialogPage,IOption
+    class OptionDialogPage : Microsoft.VisualStudio.Shell.DialogPage, IOption
     {
         public OptionDialogPage()
         {
@@ -16,9 +16,9 @@
         [System.ComponentModel.Category("Tag")]
         [System.ComponentModel.DisplayName("TreeLevelOrder")]
         [System.ComponentModel.Description("")]
-        [System.ComponentModel.EditorBrowsable( System.ComponentModel.EditorBrowsableState.Never)]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         [System.ComponentModel.Browsable(false)]
-        public string TagTypeOrder { get; set; } 
+        public string TagTypeOrder { get; set; }
 
         [System.ComponentModel.Category("Tag")]
         [System.ComponentModel.DisplayName("DisabledTags")]
@@ -33,6 +33,13 @@
         [System.ComponentModel.DefaultValue(TemplateListMode.Normal)]
         public TemplateListMode TemplateListMode { get; set; } = TemplateListMode.Normal;
 
+        [System.ComponentModel.Category("Tree")]
+        [System.ComponentModel.DisplayName("Expand TreeNode")]
+        [System.ComponentModel.Description("")]
+        [System.ComponentModel.DefaultValue(false)]
+        public bool ExpandMode { get; set; } = false;
+
+
         //[System.ComponentModel.Category("Tag")]
         //[System.ComponentModel.DisplayName("TagsShowLeft")]
         //[System.ComponentModel.Description("")]
@@ -45,6 +52,7 @@
         string TagTypeOrder { get; set; }
         string DisabledTags { get; set; }
         TemplateListMode TemplateListMode { get; set; }
+        bool ExpandMode { get; set; } 
         //bool IsShowTagsLeft { get; set; }
         void SaveSettingsToStorage();
     }
@@ -54,4 +62,5 @@
         Normal,
         Small
     }
+
 }

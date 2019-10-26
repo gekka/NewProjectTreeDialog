@@ -31,9 +31,9 @@
 
             UpdateIsVisible();
         }
-        internal void insertTag(int index,Tag tag)
-        {           
-            _Tags.Insert(index,tag);
+        internal void insertTag(int index, Tag tag)
+        {
+            _Tags.Insert(index, tag);
             tag.FilterChanged += OnTagFilterChanged;
 
             UpdateIsVisible();
@@ -83,7 +83,7 @@
         }
         protected virtual bool GetVisibleState()
         {
-            return this.Tags.Any(_ => _.Filter);
+             return this.Tags.Any(_ => _.Filter);
         }
 
         /// <summary>このノードを展開して表示させるか</summary>

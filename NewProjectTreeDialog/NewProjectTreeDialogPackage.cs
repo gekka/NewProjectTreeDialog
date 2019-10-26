@@ -28,10 +28,6 @@
 
         public NewProjectTreeDialogPackage()
         {
-            if (GLOBAL.ServiceProvider == null)
-            {
-                GLOBAL.ServiceProvider = this;
-            }
 
         }
 
@@ -47,7 +43,9 @@
 
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            GLOBAL.Initialize(this);
+            GLOBAL.Initialize();
+
+
             GLOBAL.CommandEvents.BeforeExecute += CommandEvents_BeforeExecute;
 
             var cmd = GLOBAL.DTE.Commands.Item("File.NewProject");
@@ -76,22 +74,22 @@
 
         private void CommandEvents_BeforeExecute(string Guid, int ID, object CustomIn, object CustomOut, ref bool CancelDefault)
         {
-            if (
-                (cmdFileNewProject.GUID == Guid && cmdFileNewProject.ID == ID) ||
-                (cmdFileAddNewProject.GUID == Guid && cmdFileAddNewProject.ID == ID)
-               )
+            if ((cmdFileNewProject.GUID == Guid && cmdFileNewProject.ID == ID) || (cmdFileAddNewProject.GUID == Guid && cmdFileAddNewProject.ID == ID))
             {
-#pragma warning disable VSTHRD001
+#pragma         warning disable VSTHRD001
                 ThreadHelper.Generic.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, HookDialog);
-#pragma warning restore
+#pragma         warning restore
             }
+
             try
             {
                 var cmd = GLOBAL.DTE.Commands.Item(Guid, ID);
-                System.Diagnostics.Debug.WriteLine(cmd.Name);
+
+                //System.Diagnostics.Debug.WriteLine(cmd.Name);
             }
             catch
             {
+                
             }
         }
 

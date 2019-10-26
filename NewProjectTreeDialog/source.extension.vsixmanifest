@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="NewProjectTreeDialog.c058ff47-32f2-43ae-86ad-42952b0f8813" Version="1.16.3.2" Language="en-US" Publisher="Gekka" />
+        <Identity Id="NewProjectTreeDialog.c058ff47-32f2-43ae-86ad-42952b0f8813" Version="1.16.3.5" Language="en-US" Publisher="Gekka" />
         <DisplayName>New Project Tree Dialog</DisplayName>
         <Description xml:space="preserve">Overwrite VS2019 project creation dialog to tree format like as VS2017 style</Description>
         <License>LICENSE</License>

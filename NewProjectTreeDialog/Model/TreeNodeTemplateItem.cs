@@ -4,7 +4,7 @@
     using System.Linq;
     class TreeNodeTemplateItem : TreeNodeItem
     {
-        public TreeNodeTemplateItem(object template,object templateSource)
+        public TreeNodeTemplateItem(object template, object templateSource)
         {
             this.IsLastNode = true;
 
@@ -40,7 +40,8 @@
 
         protected override bool GetVisibleState()
         {
-            bool visible = base.GetVisibleState() & isFound;
+            //bool visible = base.GetVisibleState() & isFound;
+            bool visible = isFound && this.LanguageTags.Any(_ => _.Filter) && this.PlatformTags.Any(_ => _.Filter) && this.ProjectTypeTags.Any(_ => _.Filter);
             return visible;
         }
 
@@ -48,24 +49,26 @@
 
         internal void UpdateSearch(string[] andTexts)
         {
-            bool result = false;
-            if (andTexts == null || andTexts.Length == 0)
-            {
-                result = true;
-            }
-            else
+            bool result = true;
+            if (andTexts != null && andTexts.Length != 0)
             {
                 foreach (string text in andTexts)
                 {
-                    if (string.IsNullOrWhiteSpace(text))
+                    if (text.StartsWith("-"))
                     {
-                        continue;
+                        if (IsContainsText(text.Substring(1)))
+                        {
+                            result = false;
+                            break;
+                        }
                     }
-
-                    if (this.Name.ContainsIgnoreCase(text) || this.Description.ContainsIgnoreCase(text) || this.Tags.Any(_ => _.Value.ContainsIgnoreCase(text)))
+                    else
                     {
-                        result = true;
-                        break;
+                        if (!IsContainsText(text))
+                        {
+                            result = false;
+                            break;
+                        }
                     }
                 }
             }
@@ -73,5 +76,12 @@
             this.isFound = result;
             UpdateIsVisible();
         }
+
+
+        private bool IsContainsText(string text)
+        {
+            return this.Name.ContainsIgnoreCase(text) || this.Description.ContainsIgnoreCase(text) || this.Tags.Any(_ => _.Value.ContainsIgnoreCase(text));
+        }
+
     }
 }

@@ -78,7 +78,7 @@
             w.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             w.Show();
 #else
-            
+
             npdview.Visibility = Visibility.Hidden;
 
             var wfcc = ControlFinder.FindChildren<ContentControl>(wnd).FirstOrDefault(_ => _.Name == "WorkflowContentControl");
@@ -101,19 +101,26 @@
 
             if (wfcc.Parent is Grid g)
             {
-                TextBlock tb = new TextBlock() { HorizontalAlignment = HorizontalAlignment.Left, FontSize = 20, FontWeight = FontWeights.Bold , Margin= new Thickness(10,2,0,2)};
+                TextBlock tb = new TextBlock() { HorizontalAlignment = HorizontalAlignment.Left, FontSize = 20, FontWeight = FontWeights.Bold, Margin = new Thickness(10, 2, 0, 2) };
                 tb.SetBinding(TextBlock.TextProperty, "Title");
                 tb.DataContext = page1.OriginalViewModel;
                 Grid.SetRow(tb, Math.Max(0, Grid.GetRow(wfcc) - 1));
                 Grid.SetColumnSpan(tb, 3);
                 g.Children.Add(tb);
             }
-    
+
 #endif
 
             this.page1.SelectedTemplateChanged += CustomProjectTemplatesModel_SelectedItemChanged;
 
             wnd.ResizeMode = ResizeMode.CanResizeWithGrip;
+            wnd.PreviewKeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Enter)
+                {
+                    e.Handled = true;
+                }
+            };
             wnd.Closing += (s, e) =>
             {
                 this.page1.WriteToOption(option);
@@ -122,6 +129,7 @@
 
                 closed = true;
             };
+
 
             return true;
         }
@@ -199,7 +207,7 @@
 
                     for (DateTime t = DateTime.Now.AddSeconds(5); ;)
                     {
-                        ext = this.page1.SelectedExtension;//awaitの間にへんかしてるかも
+                        ext = this.page1.SelectedExtension;//awaitの間に変化してるかも
 
                         this.page1.CopySelectedExtensionToToOriginal();
                         while (!commands.GoNextCommand.CanExecute(null))
@@ -224,7 +232,7 @@
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
             }
             finally
